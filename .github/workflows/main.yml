@@ -6,7 +6,7 @@ on:
   release:
     types:
       - created
-  workflow_dispatch:
+  workflow_dispatch:      # 🎯 讓你可以隨時在網頁上手動點擊編譯
 
 jobs:
   build:
@@ -22,23 +22,26 @@ jobs:
           dotnet-version: 10.0.x
           dotnet-quality: 'preview'
       
-      # 🎯 修正 1：不寫死檔名！dotnet restore 會自動抓最外層唯一的那個專案檔
       - name: Restore dependencies
         run: dotnet restore
       
-      # 🎯 修正 2：同樣不寫死檔名！直接對當前目錄編譯，並自動建立 addons 目錄結構
       - name: Build Plugin
         run: dotnet build -c Release --no-restore -o ./addons/counterstrikesharp/plugins/OfficialDsStatus-CS2
 
-      - name: Create release asset
-        if: github.event_name == 'release'
-        run: zip -r OfficialDsStatus-CS2-${{ github.event.release.tag_name }}.zip ./addons/
+      - name: Create ZIP Asset
+        run: zip -r OfficialDsStatus-CS2.zip ./addons/
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OfficialDsStatus-CS2-純淨版
+          path: ./OfficialDsStatus-CS2.zip
 
       - name: Upload release asset
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            ./OfficialDsStatus-CS2-${{ github.event.release.tag_name }}.zip
+            ./OfficialDsStatus-CS2.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
