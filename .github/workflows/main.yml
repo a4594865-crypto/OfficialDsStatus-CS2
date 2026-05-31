@@ -6,7 +6,7 @@ on:
   release:
     types:
       - created
-  workflow_dispatch:      # 🎯 讓你可以隨時在網頁上手動點擊編譯
+  workflow_dispatch:
 
 jobs:
   build:
