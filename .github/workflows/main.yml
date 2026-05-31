@@ -22,17 +22,13 @@ jobs:
           dotnet-version: 10.0.x
           dotnet-quality: 'preview'
       
+      # 🎯 修正 1：不寫死檔名！dotnet restore 會自動抓最外層唯一的那個專案檔
       - name: Restore dependencies
-        # 🎯 修正 1：告訴 GitHub 先點進你的子資料夾（如果你的子資料夾名稱不同，請自行修改）
-        working-directory: ./OfficialDsStatus-CS2
-        # 🎯 進去之後，直接對當前目錄（.）進行 restore 即可
         run: dotnet restore
       
+      # 🎯 修正 2：同樣不寫死檔名！直接對當前目錄編譯，並自動建立 addons 目錄結構
       - name: Build Plugin
-        # 🎯 修正 2：同樣先點進子資料夾
-        working-directory: ./OfficialDsStatus-CS2
-        # 🎯 編譯完成後，把輸出的檔案往外推（../），集中到根目錄的 addons 資料夾裡
-        run: dotnet build -c Release --no-restore -o ../addons/counterstrikesharp/plugins/OfficialDsStatus-CS2
+        run: dotnet build -c Release --no-restore -o ./addons/counterstrikesharp/plugins/OfficialDsStatus-CS2
 
       - name: Create release asset
         if: github.event_name == 'release'
