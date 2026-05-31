@@ -1,0 +1,42 @@
+name: OfficialDsStatus-CS2 Build and Release
+
+on:
+  pull_request:
+    branches: [ "main" ]
+  release:
+    types:
+      - created
+  workflow_dispatch:
+
+jobs:
+  build:
+    permissions: write-all
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+          dotnet-quality: 'preview'
+      
+      - name: Restore dependencies
+        run: dotnet restore OfficialDsStatus-CS2.csproj
+      
+      - name: Build Plugin
+        run: dotnet build OfficialDsStatus-CS2.csproj -c Release --no-restore -o ./addons/counterstrikesharp/plugins/OfficialDsStatus-CS2
+
+      - name: Create release asset
+        if: github.event_name == 'release'
+        run: zip -r OfficialDsStatus-CS2-${{ github.event.release.tag_name }}.zip ./addons/
+
+      - name: Upload release asset
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ./OfficialDsStatus-CS2-${{ github.event.release.tag_name }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
